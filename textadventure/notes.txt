@@ -1,0 +1,3 @@
+Will need to refactor the Area returning true part. For now we're just using a "isLast" boolean. need something more clever
+HealItem is going to need its own consumeItem method since this is not the same boolean as in Item class
+Do we need a "consume" attribute? we can also just remove it from the inventory
