@@ -175,6 +175,10 @@ public class Game {
             return false;
         }
 
+        public static boolean subAreaNavigator(){
+            return false;
+        }
+
         public static int threeOptions(String string1, String string2, String string3, Player character){
             System.out.println(green+ "Would you like to " + blue+ "<"+ white + string1 + blue + ">"+ " <"+ white + string2 + blue +">" + green + " or "+ blue +"<"+ white + string3 + blue + ">" + purple);
             String input = keyboard.nextLine();
