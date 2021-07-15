@@ -50,21 +50,15 @@ public class Player {
     }
 
     public String getInventory(){
-        String[] stringArray = new String[inventory.size()];
-        for(int i=0; i<inventory.size(); i++){
-            if(inventory.get(i) instanceof HealItem){
-                HealItem item = (HealItem)inventory.get(i);
-                stringArray[i]= item.toString();
-            }
-            if(inventory.get(i) instanceof KeyItem){
-                KeyItem item = (KeyItem)inventory.get(i);
-                stringArray[i] = item.toString();
-            }
-            
-        }
-        return Arrays.toString(stringArray);
-        
-    
+        return inventory.toString();
+    }
+
+    public Item getInventory(int i){
+        return inventory.get(i);
+    }
+
+    public int getInventorySize(){
+        return inventory.size();
     }
 
 

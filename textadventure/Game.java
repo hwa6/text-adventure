@@ -23,6 +23,7 @@ public class Game {
         System.out.println(character.getInventory());
         }
 
+        //methods related to game function
 
         public static Player createCharacter(){
             
@@ -43,16 +44,21 @@ public class Game {
         public static void sigepKitchen(Player character){
             HealItem pierogies = new HealItem("Pierogies",15);
             HealItem boxedWine = new HealItem("Roland's Franzia",50);
-            character.addToInventory(pierogies);
+            KeyItem rustedKey = new KeyItem("Rusted Key", "It's been in the water for a while. There's flakes of red paint still visible under the rust and grime.");
+            character.addToInventory(rustedKey);
 
             Area cabinetUnderSink = new Area("Cabinet Under the Sink", "I wonder what's in there.", boxedWine);
-            Area murkyWater = new Area("Murky Sink Water", "It doesn't look safe...", 10, "Ouch! The water is toxic!");
+            Area murkyWater = new Area("Murky Sink Water", "It doesn't look safe...", rustedKey, 10, "Ouch! The water is toxic!", true);
             Area[] cloggedSinkSubArea = new Area[] {cabinetUnderSink, murkyWater};
 
             Area fridge = new Area("Fridge", "Weird leftovers", pierogies);
             Area cloggedSink = new Area("Clogged Sink", "Dark and murky", cloggedSinkSubArea);
-            Area foodPantry = new Area ("Food Pantry", "Locked!", pierogies, true);
-            Area[] sigepKitchen = new Area[] {fridge, cloggedSink, foodPantry};
+            Area foodPantry = new Area ("Food Pantry", "The key to the whole puzzle", "password123");
+            Area fourthRoom = new Area ("Fourth Room", "It has cool stuff inside", rustedKey);
+            Area[] sigepKitchen = new Area[] {foodPantry, cloggedSink, fridge, fourthRoom};
+            Room rolandsKitchen = new Room("Roland's Kitchen","There are utensils on the floor. It's gross, what more do you want me to say?",sigepKitchen, true);
+
+
 
             int choice;
            
@@ -61,14 +67,14 @@ public class Game {
             consoleMessage("standard","We're positioned like we just came out of Roland's bathroom. What were we doing in there? Anyway, the only way out is through the big red doors on the other side of the kitchen.");
             consoleMessage("standard","But... of course they're locked. Time to find a key. Where should be start?");
             consoleMessage("standard","When given a few options like below, simply type in your option. Depending on how lazy I was when I refactored this, there may be some light error handling. It might break the whole program. Who knows."+"\n"+ "Try to be accurate. ");
-            choice = threeOptions("Keep Playing", "Quit", "Quit, but with more emphasis", character);
+            /*choice = threeOptions("Keep Playing", "Quit", "Quit, but with more emphasis", character);
             if(choice == 2 || choice == 3){
                 gameOver();
-            }
-            consoleMessage("standard","Excellent choice! You can also get your health at any point by typing " + white+ "Check Health" + green + ", or inventory with "+ white + "Check Inventory");
+            }*/
+            consoleMessage("standard","Excellent choice! You can also get your health at any point by asking for " + white+ "Health" + green + ", or inventory with "+ white + "Inventory");
             consoleMessage("standard", "Feel free to try that now!");
-            oneOption("Try out the new commands, then when you're good to go type", "Ready", character);
-            navigator("Roland's Kitchen", "There are utensils on the floor. It's gross, what more do you want me to say?", sigepKitchen, character);
+            //oneOption("Try out the new commands, then when you're good to go type", "Ready", character);
+            navigator(rolandsKitchen, character, false);
 
 
             
@@ -79,6 +85,9 @@ public class Game {
             System.out.println(white + "You Died! Game Over"+ reset);
             System.exit(0);
         }
+
+
+        //methods related to input formatting/printing to console
 
         public static void delay(String delay){
             int standard = 200;
@@ -109,75 +118,102 @@ public class Game {
             delay(delay);
         }
 
+        public static void consoleMessage(String delay, String message1, String choice, String message2){
+            System.out.println(green + message1 + blue+ " <"+ white + choice + blue + ">"+ green + message2 + purple);
+            delay(delay);
+        }
+
         public static void consoleOption(String choice) {
             System.out.print(blue+ " <"+ white + choice + blue + ">"+ purple);
         }
 
-        public static void navigator(String roomName, String roomDescription, Area[] room, Player character){
-            boolean typo=true;
-            boolean roomComplete=false;
-            while (roomComplete==false){
-                consoleMessage("standard", "You are in", roomName);
-                consoleMessage("standard", roomDescription);
-                consoleMessage("standard", "Where in the room would you like to go?");
-                for(int i=0; i<room.length; i++){
-                    consoleOption(room[i].getName());
+        public static void handleNonRoomName(String input, Player character){
+            String lowercaseInput = input.toLowerCase();
+            if(input.contains("inventory")){
+                System.out.println(character.getInventory());
                 }
-                System.out.println();
-                String input=keyboard.nextLine();
-                for(int i=0; i<room.length; i++){
-                    if(input.equalsIgnoreCase(room[i].getName())){
-                        roomComplete=areaNavigator(room[i], character);
-                        typo=false;
-                    } 
+            if(input.contains("health")){
+                System.out.println(character.getHP());
                 }
-                if(typo==true){
+            else{
                 consoleMessage("standard", "I'm sorry I couldn't hear what you said. Try again?");
-                input=keyboard.nextLine();
-                }
-            }
+                }             
+
         }
 
-        public static boolean areaNavigator(Area area, Player character){
-            if(area.hasSubAreas()==true){
-                Area goBack = new Area("Go Back", "", true);
-                Area[] subAreasWithBackOption = new Area[area.getSubAreas().length+1]; //{area.getSubAreas()}
-                for(int i=0; i<subAreasWithBackOption.length-1; i++){
-                    subAreasWithBackOption[i]= (Area)Array.get(area.getSubAreas(), i);
+        //methods related to navigation
+
+        public static void navigator(Room room,  Player character, boolean recursive){
+            boolean puzzleCompleted=false;
+            boolean roomNameMatch = false;
+            boolean breakNav = false;
+            boolean isRecursive = true;
+            String input;
+            Area area = new Area("Dummy Area", "This area shouldn't ever be visible!");
+
+            //while(isRecursive==true){
+                isRecursive=false;
+                while(breakNav==false){
+                    consoleMessage("standard", "Current Area: ", room.getName());
+                    consoleMessage("standard", room.getDescription());
+                    while (roomNameMatch==false){
+                        consoleMessage("standard", "Where would you like to go?");
+                        for(int i=0; i<room.numberOfAreas(); i++){
+                            consoleOption(room.getArea(i).getName());
+                        }
+                        System.out.println();
+                        input=keyboard.nextLine();
+                        for(int i=0; i<room.numberOfAreas(); i++){
+                            if(input.equalsIgnoreCase(room.getArea(i).getName())){
+                                roomNameMatch=true;
+                                area = room.getArea(i);
+                            }
+                        }
+                        if(roomNameMatch==false){
+                            handleNonRoomName(input, character);
+                        }
+                    }
+                    roomNameMatch=false;
+                    if(area.hasSubAreas()){
+                        isRecursive=recursive;
+                        navigator(area, area.getSubAreas(),  character);
+                    }
+                    consoleMessage("standard", "Current Area: ", area.getName());
+                    consoleMessage("standard", area.getDescription());
+                    if(area.isLocked()){
+                        lockedDoor(area, character);
+                    }
+                    if(area.firstVisit()==true){
+                        area.visit();
+                        if(area.hasItem()==true){
+                            consoleMessage("standard", area.getItem().getMessage());
+                            consoleMessage("standard", area.getItem().toString());
+                            character.addToInventory(area.getItem());
+                        }
+                    }
+                    if(area.hasDamage()==true){
+                        consoleMessage("standard", area.getDamageDescription());
+                        character.damageHP(area.getDamage());
+                       
+                    }
+                    consoleMessage("standard", "Ready to go back?");
+                    input=keyboard.nextLine();
+                    while(input.equalsIgnoreCase("Yes")==false && input.equalsIgnoreCase("Y")==false && input.equalsIgnoreCase("Ready")==false){
+                        consoleMessage("standard", "Okay you just let me know when you are. Ready yet?");
+                        input=keyboard.nextLine();
+                    }
+                    breakNav=true;
                 }
-                subAreasWithBackOption[subAreasWithBackOption.length-1]=goBack;
-                navigator(area.getName(), area.getDescription(), subAreasWithBackOption, character);
-            }
-            consoleMessage("standard", "Area: ", area.getName());
-            consoleMessage("standard", area.getDescription());
-            if(area.beenVisited()==false){
-                if(area.hasItem()==true){
-                    consoleMessage("standard", area.getItem().getMessage());
-                    consoleMessage("standard", area.getItem().toString());
-                    character.addToInventory(area.getItem());
-                }
-                area.visit();
-            }
-            if(area.isLast()==true){
-                //consoleMessage("standard", "Room Completed!");
-                return true;
-            }
-            if(area.hasDamage()==true){
-                consoleMessage("standard", area.getDamageDescription());
-                character.damageHP(area.getDamage());
-            }
-            consoleMessage("standard", "Ready to go back?");
-            String input=keyboard.nextLine();
-            while(input.equalsIgnoreCase("Yes")==false && input.equalsIgnoreCase("Y")==false && input.equalsIgnoreCase("Ready")==false){
-                consoleMessage("standard", "Okay you just let me know when you are. Ready yet?");
-                input=keyboard.nextLine();
-            }
-            return false;
+            //}  
+        }
+    
+
+        public static void navigator (Area area, Area[] subAreas, Player character){
+            Room room = new Room(area.getName(),area.getDescription(),subAreas);
+            navigator(room, character, true);
         }
 
-        public static boolean subAreaNavigator(){
-            return false;
-        }
+        //methods related to player options
 
         public static int threeOptions(String string1, String string2, String string3, Player character){
             System.out.println(green+ "Would you like to " + blue+ "<"+ white + string1 + blue + ">"+ " <"+ white + string2 + blue +">" + green + " or "+ blue +"<"+ white + string3 + blue + ">" + purple);
@@ -232,6 +268,86 @@ public class Game {
             }
 
 
+        }
+
+        //methods related to specific puzzles/mechanics
+
+        public static void lockedDoor(Area area, Player character){
+            String input;
+            KeyItem keyItem = new KeyItem("Dummy KeyItem", "This item shouldn't ever be visible!");
+
+            if(area.hasPasswordLock()){
+                input="";
+                outer:
+                while(input.equalsIgnoreCase("no")==false){
+                    consoleMessage("standard", "Would you like to enter a password?");
+                    input=keyboard.nextLine();
+                    if(input.equalsIgnoreCase("yes")){
+                        consoleMessage("standard", "Enter your password attempt");
+                        input=keyboard.nextLine();
+                        area.unlockRoom(input);
+                        if(area.isLocked()){
+                            consoleMessage("Standard", "Try again?");
+                            input=keyboard.nextLine();
+                        }
+                        else{break outer;}
+                    }
+                    else{
+                        consoleMessage("Standard", "I'm sorry I couldn't hear what you said. Try again.");
+                    }
+                }
+            }
+            else{
+                input="";
+                consoleMessage("standard", "Would you like to try and open the door?");
+                input=keyboard.nextLine();
+                outer:
+                while(input.equalsIgnoreCase("no")==false){
+                    if(input.equalsIgnoreCase("yes")){
+                        boolean satisfied=false;
+                        while(satisfied==false){
+                            consoleMessage("standard", "Which item would you like to try and use?");
+                            System.out.println(character.getInventory());
+                            input=keyboard.nextLine(); 
+                            System.out.println(character.getInventorySize());
+                            for(int i=0; i<character.getInventorySize(); i++){
+                                System.out.println(i);
+                                if(character.getInventory(i).getName().equalsIgnoreCase(input)){
+                                    if(character.getInventory(i) instanceof KeyItem){
+                                        keyItem= (KeyItem)character.getInventory(i);
+                                    }
+                                }
+                            }
+                            if(keyItem.getName().equals("Dummy KeyItem")){
+                                consoleMessage("standard", "Wrong type of item silly. Try again?");
+                                input=keyboard.nextLine();
+                                while(input.equalsIgnoreCase("yes")==false){
+                                    if(input.equalsIgnoreCase("no")){
+                                        break outer;
+                                    }
+                                    else{
+                                        consoleMessage("Standard", "I'm sorry I couldn't hear what you said. Try again.");
+                                        input=keyboard.nextLine();
+                                    }
+                                }
+                            }
+                            else{
+                                satisfied=true;
+                            }
+                        }       
+                        area.unlockRoom(keyItem);
+                        if(area.isLocked()){
+                            consoleMessage("Standard", "Try again?");
+                            input=keyboard.nextLine();
+                        }
+                        else{break outer;}
+                    }
+                    else{
+                        consoleMessage("Standard", "I'm sorry I couldn't hear what you said. Try again.");
+                        input=keyboard.nextLine();
+                    }
+                }
+            }            
         }
 }
 
