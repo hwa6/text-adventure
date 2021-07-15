@@ -1,3 +1,17 @@
 Will need to refactor the Area returning true part. For now we're just using a "isLast" boolean. need something more clever
 HealItem is going to need its own consumeItem method since this is not the same boolean as in Item class
 Do we need a "consume" attribute? we can also just remove it from the inventory
+
+Potential room puzzle ideas:
+    Crossword, where it's a 2D array.
+    Rotating tile puzzle. look up java console art, then segment it into quadrants  dash - maps to / then to | etc
+
+We need to:
+    when breaking out of sub room, automatically breaks out of next room too
+    we need a better way to move backwards besides breakNav/isLast
+    when we checkInventory, need to reprint the Where would you like to go message
+    fix it so user can always check inventory, health
+    add ability to heal w item 
+
+next room is henry and nicoles future house
+
