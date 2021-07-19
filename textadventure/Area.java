@@ -4,14 +4,17 @@ public class Area {
     private String description;
     private String damageDescription;
     private String unlockDescription;
+    private String lockPassword;
     private Integer damage;
     private boolean firstVisit;
-    private boolean breakNav;
+    private boolean isRoot;
+    private boolean isLocked;
+    private boolean isHidden;
     private Item item;
     private Area[] subAreas;
-    private boolean isLocked;
     private KeyItem lockKey;
-    private String lockPassword;
+    private RiddlePuzzle riddlePuzzle;
+  
   
     //constructor
     //area with no Item
@@ -30,12 +33,12 @@ public class Area {
         this.damageDescription=damageDescription;
     }
 
-    //area with no Item that breaks nav
-    public Area(String name, String description, boolean breakNav){
+    //area with no Item that is root
+    public Area(String name, String description, boolean isRoot){
         firstVisit=true;
         this.name=name;
         this.description=description;
-        this.breakNav=breakNav;
+        this.isRoot=isRoot;
     }
 
     //area with no Item that contains "sub areas"
@@ -44,6 +47,15 @@ public class Area {
         this.name=name;
         this.description=description;
         this.subAreas=subAreas;
+    }
+
+    //area with no Item that is root and contains "sub areas"
+    public Area(String name, String description, boolean isRoot, Area[] subAreas){
+        firstVisit=true;
+        this.name=name;
+        this.description=description;
+        this.subAreas=subAreas;
+        this.isRoot=isRoot;
     }
 
     //area with no Item that has KeyItem password
@@ -56,20 +68,6 @@ public class Area {
         this.unlockDescription=unlockDescription;
     }
 
-    public void unlockRoom(KeyItem lockKey){
-        if(this.lockKey.equals(lockKey)){
-            System.out.println("Aha! The " + lockKey.getName() + " unlocked the area.");
-            firstVisit=true;
-            isLocked=false;
-            this.description=this.unlockDescription;
-        }
-        else{
-            System.out.println("You don't have the correct item.");
-        }
-    }
-
-    
-
     //area with no Item that has String password
     public Area(String name, String unlockDescription, String lockPassword){
         isLocked=true;
@@ -80,18 +78,14 @@ public class Area {
         this.unlockDescription=unlockDescription;
     }
 
-    public void unlockRoom(String lockPassword){
-        if(this.lockPassword.equals(lockPassword)){
-            System.out.println("Aha! The password was "+ lockPassword + ". Area unlocked.");
-            firstVisit=true;
-            isLocked=false;
-            this.description=this.unlockDescription;
-        }
-        else{
-            System.out.println("Nope, that password didn't work.");
-        }
+    //area with no Item that has a puzzle, isHidden
+    public Area(String name, String description, RiddlePuzzle puzzle, boolean isHidden){
+        this.isHidden=isHidden;
+        firstVisit=true;
+        this.name=name;
+        this.description=description;
+        this.riddlePuzzle=puzzle;
     }
-
      //area with Item
      public Area(String name, String description, Item item){
         firstVisit=true;
@@ -110,24 +104,24 @@ public class Area {
         this.damageDescription=damageDescription;
     }    
 
-    //area with Item that breaks nav
-    public Area(String name, String description, Item item, boolean breakNav){
+    //area with Item that is root
+    public Area(String name, String description, Item item, boolean isRoot){
         firstVisit=true;
         this.name=name;
         this.item=item;
         this.description=description;
-        this.breakNav=breakNav;
+        this.isRoot=isRoot;
     }
 
     //area with Item that damages player, break nav
-    public Area(String name, String description, Item item, int damage, String damageDescription, boolean breakNav){
+    public Area(String name, String description, Item item, int damage, String damageDescription, boolean isRoot){
         firstVisit=true;
         this.name=name;
         this.description=description;
         this.item=item;
         this.damage=damage;
         this.damageDescription=damageDescription;
-        this.breakNav=breakNav;
+        this.isRoot=isRoot;
     }
 
 
@@ -138,7 +132,6 @@ public class Area {
     public String getName(){
         return name;
     }
-
     public String getDescription(){
         return description;
     }
@@ -164,8 +157,8 @@ public class Area {
         }
     }
 
-    public boolean breakNav(){
-        return breakNav;
+    public boolean isRoot(){
+        return isRoot;
     }
 
     public boolean hasSubAreas(){
@@ -209,6 +202,53 @@ public class Area {
         else{
             return true;
         }
+    }
+
+    public void unlockRoom(KeyItem lockKey){
+        if(this.lockKey.equals(lockKey)){
+            System.out.println("Aha! The " + lockKey.getName() + " unlocked the area.");
+            firstVisit=true;
+            isLocked=false;
+            this.description=this.unlockDescription;
+        }
+        else{
+            System.out.println("You don't have the correct item.");
+        }
+    }
+
+    public void unlockRoom(String lockPassword){
+        if(this.lockPassword.equals(lockPassword)){
+            System.out.println("Aha! The password was "+ lockPassword + ". Area unlocked.");
+            firstVisit=true;
+            isLocked=false;
+            this.description=this.unlockDescription;
+        }
+        else{
+            System.out.println("Nope, that password didn't work.");
+        }
+    }
+
+    public boolean hasRiddlePuzzle(){
+        if(riddlePuzzle==null){
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
+
+
+    public RiddlePuzzle getRiddlePuzzle(){
+        return riddlePuzzle;
+    }
+
+    public void unhide(){
+        System.out.println("A new area, "+ name +" appeared!");
+        isHidden=false;
+    }
+
+    public boolean isHidden(){
+        return isHidden;
     }
 
 }

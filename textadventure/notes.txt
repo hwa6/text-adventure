@@ -12,6 +12,17 @@ We need to:
     when we checkInventory, need to reprint the Where would you like to go message
     fix it so user can always check inventory, health
     add ability to heal w item 
+    implement console log for print statements insid puzzle, area classes
 
 next room is henry and nicoles future house
 
+move lock functionality over to puzzle
+inside navigator
+    if(has puzzle)
+        handleLock
+        if(puzzlesolved)
+            return true
+
+return false for every other scenario
+
+use true return statement to breakNav on root container
