@@ -21,7 +21,8 @@ public class Game {
         sigepKitchen(character);
         character.incrementCP();
         futureHouse();
-        System.out.println(character.getInventory());
+        consoleMessage("standard", "Stay tuned for the release of level 2!!!!");
+        consoleMessage("standard", "Happy Birthday Bubie!!!! I love you.");
         }
 
         //methods related to game function
@@ -31,7 +32,8 @@ public class Game {
             System.out.println(green + "\n" + "Hello! Welcome to a very special escape the room challenge! Please enter your name." + "\n"+ purple);
             String name = keyboard.nextLine();
             Player character = new Player(name);
-            System.out.println(green + "\n"+"Howdy " + character.getName() + ". Did I hear that right?" + "\n" );
+            consoleMessage("standard", "Howdy"+character.getName()+"!");
+            //System.out.println(green + "\n"+"Howdy " + character.getName() + ". Did I hear that right?" + "\n" );
             //MAKE A DO WHILE LOOP TO MAKE SURE THE NAME IS CORRECT
             consoleMessage("standard", "Alright then " + character.getName() + ". It's a real pleasure to meet you. The name's Henry. We got ourselves in a bit of a situation here. ");
             consoleMessage("standard","It appears we're trapped inside my subconscious. I've been known to have the odd dream or two, and this one seems to be no exception. We're gonna have to find our way out of here.");
@@ -81,6 +83,7 @@ public class Game {
         }
 
         public static void futureHouse(){
+            consoleMessage("standard", "Ah. Henry and Nicole's future house!");
             
         }
 
@@ -94,8 +97,7 @@ public class Game {
         //methods related to input formatting/printing to console
 
         public static void delay(String delay){
-            int standard = 200;
-            //int standard=2500;
+            int standard=2500;
             if (delay.equalsIgnoreCase("standard")){
                 try {Thread.sleep(standard); } catch(InterruptedException error) {}
             }
